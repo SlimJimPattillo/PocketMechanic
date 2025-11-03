@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(PocketMechanic/README.md)",
+      "Bash(PocketMechanic/package.json)",
+      "Bash(PocketMechanic/package-lock.json)",
+      "Bash(PocketMechanic/tsconfig.json)",
+      "Bash(PocketMechanic/app.json)",
+      "Bash(PocketMechanic/index.ts)",
+      "Bash(PocketMechanic/supabase-schema.sql)",
+      "Bash(PocketMechanic/.claude/settings.local.json)",
+      "Bash(git archive:*)",
+      "Bash(tar:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
