@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -19,6 +20,9 @@ import { ProfileScreen } from '../screens/main/ProfileScreen';
 
 // Vehicle Screens
 import { VehicleSetupScreen } from '../screens/vehicle/VehicleSetupScreen';
+
+// Components
+import { LoadingScreen } from '../components/common/LoadingScreen';
 
 const AuthStack = createNativeStackNavigator();
 const MainStack = createNativeStackNavigator();
@@ -58,7 +62,7 @@ const MainTabs = () => {
         component={DashboardScreen}
         options={{
           tabBarLabel: 'Dashboard',
-          tabBarIcon: ({ color }) => <span style={{ fontSize: 24 }}>🏠</span>,
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>🏠</Text>,
         }}
       />
       <Tab.Screen
@@ -66,7 +70,7 @@ const MainTabs = () => {
         component={VehiclesScreen}
         options={{
           tabBarLabel: 'Vehicles',
-          tabBarIcon: ({ color }) => <span style={{ fontSize: 24 }}>🚗</span>,
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>🚗</Text>,
         }}
       />
       <Tab.Screen
@@ -74,7 +78,7 @@ const MainTabs = () => {
         component={WarningLightsScreen}
         options={{
           tabBarLabel: 'Lights',
-          tabBarIcon: ({ color }) => <span style={{ fontSize: 24 }}>⚠️</span>,
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>⚠️</Text>,
         }}
       />
       <Tab.Screen
@@ -82,7 +86,7 @@ const MainTabs = () => {
         component={GuidesScreen}
         options={{
           tabBarLabel: 'Guides',
-          tabBarIcon: ({ color }) => <span style={{ fontSize: 24 }}>📖</span>,
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>📖</Text>,
         }}
       />
       <Tab.Screen
@@ -90,7 +94,7 @@ const MainTabs = () => {
         component={ProfileScreen}
         options={{
           tabBarLabel: 'Profile',
-          tabBarIcon: ({ color }) => <span style={{ fontSize: 24 }}>👤</span>,
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>👤</Text>,
         }}
       />
     </Tab.Navigator>
@@ -122,7 +126,7 @@ export const Navigation = () => {
   const { session, loading } = useAuth();
 
   if (loading) {
-    return null; // Could add a loading screen here
+    return <LoadingScreen />;
   }
 
   return (

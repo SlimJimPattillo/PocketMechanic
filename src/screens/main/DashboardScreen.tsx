@@ -7,14 +7,22 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { CompositeScreenProps } from '@react-navigation/native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { supabase } from '../../services/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { Colors, Typography, Spacing, Layout } from '../../constants/theme';
-import { Vehicle, MaintenanceTask } from '../../types';
+import { Vehicle, MaintenanceTask, MainTabsParamList, MainStackParamList } from '../../types';
 
-export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<MainTabsParamList, 'Dashboard'>,
+  NativeStackScreenProps<MainStackParamList>
+>;
+
+export function DashboardScreen({ navigation }: any) {
   const { user } = useAuth();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [upcomingTasks, setUpcomingTasks] = useState<MaintenanceTask[]>([]);
