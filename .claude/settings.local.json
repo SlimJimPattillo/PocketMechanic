@@ -10,7 +10,8 @@
       "Bash(PocketMechanic/supabase-schema.sql)",
       "Bash(PocketMechanic/.claude/settings.local.json)",
       "Bash(git archive:*)",
-      "Bash(tar:*)"
+      "Bash(tar:*)",
+      "Bash(git remote add:*)"
     ],
     "deny": [],
     "ask": []
