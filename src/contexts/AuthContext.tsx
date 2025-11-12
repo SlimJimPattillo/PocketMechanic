@@ -3,6 +3,31 @@ import { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from '../services/supabase';
 import { User } from '../types';
 
+// Database row interface (snake_case)
+interface DatabaseUser {
+  id: string;
+  email: string;
+  is_premium: boolean;
+  premium_expires_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Transform database row to User type
+const transformDatabaseUser = (dbUser: DatabaseUser): User => ({
+  id: dbUser.id,
+  email: dbUser.email,
+  isPremium: dbUser.is_premium,
+  createdAt: dbUser.created_at,
+});
+
+// Transform User type to database row format
+const transformToDatabase = (user: Partial<User> & { id: string; email: string }) => ({
+  id: user.id,
+  email: user.email,
+  is_premium: user.isPremium ?? false,
+});
+
 interface AuthContextType {
   session: Session | null;
   user: User | null;
@@ -72,7 +97,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               .select('*')
               .eq('id', userId)
               .single();
-            setUser(newData);
+            if (newData) {
+              setUser(transformDatabaseUser(newData as DatabaseUser));
+            }
           } else {
             console.error('Error creating user profile:', insertError);
             // Set a minimal user object from session if table doesn't exist
@@ -81,14 +108,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               email: session.user.email || '',
               isPremium: false,
               createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
             } as User);
           }
         }
         return;
       }
 
-      setUser(data);
+      // Transform database row to User type
+      setUser(transformDatabaseUser(data as DatabaseUser));
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
     } finally {

@@ -65,6 +65,40 @@ export const VehicleSetupScreen: React.FC<{ navigation: any }> = ({ navigation }
     setLoading(true);
 
     try {
+      // Verify user profile exists in database, create if missing
+      const { data: existingUser, error: userCheckError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+      if (userCheckError && userCheckError.code === 'PGRST116') {
+        // User profile doesn't exist, try to create it
+        console.log('User profile not found, attempting to create...');
+        const { data: authSession } = await supabase.auth.getSession();
+
+        if (authSession.session?.user) {
+          const { error: createError } = await supabase.from('users').insert({
+            id: authSession.session.user.id,
+            email: authSession.session.user.email,
+            is_premium: false,
+          });
+
+          if (createError) {
+            console.error('Failed to create user profile:', createError);
+            Alert.alert(
+              'Profile Error',
+              'Unable to create user profile. Please contact support if this continues.'
+            );
+            return;
+          }
+          console.log('User profile created successfully');
+        }
+      } else if (userCheckError) {
+        console.error('Error checking user profile:', userCheckError);
+        // Continue anyway - let the vehicle insert attempt and fail if needed
+      }
+
       // Insert vehicle
       const { data: vehicleData, error: vehicleError } = await supabase
         .from('vehicles')
