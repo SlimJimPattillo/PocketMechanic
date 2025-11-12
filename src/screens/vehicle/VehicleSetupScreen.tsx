@@ -9,7 +9,6 @@ import {
   Alert,
 } from 'react-native';
 import { supabase } from '../../services/supabase';
-import { nhtsaApi } from '../../services/nhtsaApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
@@ -19,14 +18,12 @@ import { defaultMaintenanceSchedule } from '../../data/maintenanceSchedule';
 
 export const VehicleSetupScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { user } = useAuth();
-  const [vin, setVin] = useState('');
   const [make, setMake] = useState('');
   const [model, setModel] = useState('');
   const [year, setYear] = useState('');
   const [mileage, setMileage] = useState('');
   const [nickname, setNickname] = useState('');
   const [loading, setLoading] = useState(false);
-  const [useVin, setUseVin] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [addedVehicle, setAddedVehicle] = useState<{
     make: string;
@@ -35,26 +32,6 @@ export const VehicleSetupScreen: React.FC<{ navigation: any }> = ({ navigation }
     mileage: number;
     nickname?: string;
   } | null>(null);
-
-  const handleVinLookup = async () => {
-    if (vin.length !== 17) {
-      Alert.alert('Invalid VIN', 'VIN must be 17 characters');
-      return;
-    }
-
-    setLoading(true);
-    const result = await nhtsaApi.decodeVIN(vin);
-    setLoading(false);
-
-    if (result) {
-      setMake(result.make);
-      setModel(result.model);
-      setYear(result.year.toString());
-      Alert.alert('Success', 'Vehicle information loaded from VIN');
-    } else {
-      Alert.alert('Error', 'Could not decode VIN. Please enter manually.');
-    }
-  };
 
   const handleAddVehicle = async () => {
     // Validation
@@ -96,7 +73,6 @@ export const VehicleSetupScreen: React.FC<{ navigation: any }> = ({ navigation }
           make,
           model,
           year: yearNum,
-          vin: vin || null,
           mileage: mileageNum,
           nickname: nickname || null,
         })
@@ -159,13 +135,11 @@ export const VehicleSetupScreen: React.FC<{ navigation: any }> = ({ navigation }
   const handleAddAnother = () => {
     setShowSuccessModal(false);
     // Reset form
-    setVin('');
     setMake('');
     setModel('');
     setYear('');
     setMileage('');
     setNickname('');
-    setUseVin(true);
   };
 
   return (
@@ -178,42 +152,7 @@ export const VehicleSetupScreen: React.FC<{ navigation: any }> = ({ navigation }
         keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.title}>Add Your Vehicle</Text>
-
-        <View style={styles.toggleContainer}>
-          <Button
-            title="Use VIN"
-            onPress={() => setUseVin(true)}
-            variant={useVin ? 'primary' : 'outline'}
-            size="small"
-          />
-          <Button
-            title="Enter Manually"
-            onPress={() => setUseVin(false)}
-            variant={!useVin ? 'primary' : 'outline'}
-            size="small"
-          />
-        </View>
-
-        {useVin ? (
-          <>
-            <Input
-              label="VIN (17 characters)"
-              value={vin}
-              onChangeText={setVin}
-              placeholder="1HGBH41JXMN109186"
-              autoCapitalize="characters"
-            />
-            <Button
-              title="Decode VIN"
-              onPress={handleVinLookup}
-              loading={loading}
-              fullWidth
-            />
-            <Text style={styles.dividerText}>Vehicle Information</Text>
-          </>
-        ) : (
-          <Text style={styles.dividerText}>Enter Vehicle Details</Text>
-        )}
+        <Text style={styles.subtitle}>Enter your vehicle details below</Text>
 
         <Input
           label="Make *"
@@ -286,17 +225,11 @@ const styles = StyleSheet.create({
     fontSize: Typography.h2,
     fontWeight: Typography.bold,
     color: Colors.text,
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.sm,
   },
-  toggleContainer: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    marginBottom: Spacing.lg,
-  },
-  dividerText: {
+  subtitle: {
     fontSize: Typography.body,
-    fontWeight: Typography.semibold,
     color: Colors.textSecondary,
-    marginVertical: Spacing.md,
+    marginBottom: Spacing.lg,
   },
 });
