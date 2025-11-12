@@ -7,10 +7,11 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { supabase } from '../../services/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/common/Button';
-import { Colors, Typography, Spacing, Layout } from '../../constants/theme';
+import { Colors, Typography, Spacing, Layout, BorderRadius, Shadows } from '../../constants/theme';
 import { Vehicle, MaintenanceTask } from '../../types';
 
 export function DashboardScreen({ navigation }: any) {
@@ -119,7 +120,12 @@ export function DashboardScreen({ navigation }: any) {
         </View>
 
         {/* Hero Section - Empty State */}
-        <View style={styles.heroSection}>
+        <LinearGradient
+          colors={[Colors.gradientGreenStart, Colors.gradientGreenEnd]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroSection}
+        >
           <View style={styles.heroContent}>
             <Text style={styles.heroSubtext}>Welcome to PocketMechanic!</Text>
             <Text style={styles.heroTitle}>
@@ -135,7 +141,10 @@ export function DashboardScreen({ navigation }: any) {
               />
             </View>
           </View>
-        </View>
+          {/* Decorative circles */}
+          <View style={[styles.decorativeCircle, styles.decorativeCircle1]} />
+          <View style={[styles.decorativeCircle, styles.decorativeCircle2]} />
+        </LinearGradient>
 
         {/* Quick Insights Cards - Empty State */}
         <View style={styles.section}>
@@ -145,48 +154,73 @@ export function DashboardScreen({ navigation }: any) {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.insightCards}
           >
-            <View style={[styles.insightCard, styles.insightCardBlue, styles.insightCardEmpty]}>
+            <LinearGradient
+              colors={[Colors.gradientPurpleStart, Colors.gradientPurpleEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={[styles.insightCard, styles.insightCardEmpty]}
+            >
               <View style={styles.insightBadge}>
                 <Text style={styles.insightBadgeText}>Status</Text>
               </View>
-              <Text style={[styles.insightCardTitle, styles.insightCardEmptyText]}>Vehicle health</Text>
-              <Text style={[styles.insightCardSubtitle, styles.insightCardEmptyText]}>
+              <Text style={styles.insightCardTitle}>Vehicle health</Text>
+              <Text style={styles.insightCardSubtitle}>
                 Add vehicle
               </Text>
-            </View>
+            </LinearGradient>
 
-            <View style={[styles.insightCard, styles.insightCardDark, styles.insightCardEmpty]}>
+            <LinearGradient
+              colors={[Colors.gradientIndigoStart, Colors.gradientIndigoEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={[styles.insightCard, styles.insightCardEmpty]}
+            >
               <View style={styles.insightBadge}>
                 <Text style={styles.insightBadgeText}>Schedule</Text>
               </View>
-              <Text style={[styles.insightCardTitle, styles.insightCardEmptyText]}>Maintenance calendar</Text>
-              <Text style={[styles.insightCardSubtitle, styles.insightCardEmptyText]}>
+              <Text style={styles.insightCardTitle}>Maintenance calendar</Text>
+              <Text style={styles.insightCardSubtitle}>
                 0 tasks
               </Text>
-            </View>
+            </LinearGradient>
 
-            <View style={[styles.insightCard, styles.insightCardPurple, styles.insightCardEmpty]}>
+            <LinearGradient
+              colors={[Colors.gradientCyanStart, Colors.gradientCyanEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={[styles.insightCard, styles.insightCardEmpty]}
+            >
               <View style={styles.insightBadge}>
                 <Text style={styles.insightBadgeText}>History</Text>
               </View>
-              <Text style={[styles.insightCardTitle, styles.insightCardEmptyText]}>Service records</Text>
-              <Text style={[styles.insightCardSubtitle, styles.insightCardEmptyText]}>View all</Text>
-            </View>
+              <Text style={styles.insightCardTitle}>Service records</Text>
+              <Text style={styles.insightCardSubtitle}>View all</Text>
+            </LinearGradient>
 
-            <View style={[styles.insightCard, styles.insightCardRed, styles.insightCardEmpty]}>
+            <LinearGradient
+              colors={[Colors.accent, Colors.gradientPurpleEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={[styles.insightCard, styles.insightCardEmpty]}
+            >
               <View style={styles.insightBadge}>
                 <Text style={styles.insightBadgeText}>Guide</Text>
               </View>
-              <Text style={[styles.insightCardTitle, styles.insightCardEmptyText]}>Warning lights</Text>
-              <Text style={[styles.insightCardSubtitle, styles.insightCardEmptyText]}>Learn more</Text>
-            </View>
+              <Text style={styles.insightCardTitle}>Warning lights</Text>
+              <Text style={styles.insightCardSubtitle}>Learn more</Text>
+            </LinearGradient>
           </ScrollView>
         </View>
 
         {/* Recommended Section - Empty State */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recommended</Text>
-          <View style={[styles.featureCard, styles.featureCardEmpty]}>
+          <LinearGradient
+            colors={[Colors.gradientIndigoStart, Colors.gradientIndigoEnd]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.featureCard}
+          >
             <View style={styles.featureCardContent}>
               <Text style={styles.featureCardTitle}>Add a vehicle to see</Text>
               <View style={styles.featureItem}>
@@ -202,7 +236,7 @@ export function DashboardScreen({ navigation }: any) {
                 <Text style={styles.featureText}>Personalized how-to guides</Text>
               </View>
             </View>
-          </View>
+          </LinearGradient>
         </View>
       </ScrollView>
     );
@@ -231,7 +265,12 @@ export function DashboardScreen({ navigation }: any) {
       </View>
 
       {/* Hero Section */}
-      <View style={styles.heroSection}>
+      <LinearGradient
+        colors={[Colors.gradientGreenStart, Colors.gradientGreenEnd]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.heroSection}
+      >
         <View style={styles.heroContent}>
           {mostUrgentTask ? (
             <>
@@ -257,7 +296,10 @@ export function DashboardScreen({ navigation }: any) {
             </>
           )}
         </View>
-      </View>
+        {/* Decorative circles */}
+        <View style={[styles.decorativeCircle, styles.decorativeCircle1]} />
+        <View style={[styles.decorativeCircle, styles.decorativeCircle2]} />
+      </LinearGradient>
 
       {/* Quick Insights Cards */}
       <View style={styles.section}>
@@ -267,40 +309,68 @@ export function DashboardScreen({ navigation }: any) {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.insightCards}
         >
-          <TouchableOpacity style={[styles.insightCard, styles.insightCardBlue]} onPress={() => navigation.navigate('Vehicles')}>
-            <View style={styles.insightBadge}>
-              <Text style={styles.insightBadgeText}>Status</Text>
-            </View>
-            <Text style={styles.insightCardTitle}>Vehicle health</Text>
-            <Text style={styles.insightCardSubtitle}>
-              {primaryVehicle ? `${primaryVehicle.mileage.toLocaleString()} mi` : 'Add vehicle'}
-            </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Vehicles')}>
+            <LinearGradient
+              colors={[Colors.gradientPurpleStart, Colors.gradientPurpleEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={styles.insightCard}
+            >
+              <View style={styles.insightBadge}>
+                <Text style={styles.insightBadgeText}>Status</Text>
+              </View>
+              <Text style={styles.insightCardTitle}>Vehicle health</Text>
+              <Text style={styles.insightCardSubtitle}>
+                {primaryVehicle ? `${primaryVehicle.mileage.toLocaleString()} mi` : 'Add vehicle'}
+              </Text>
+            </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.insightCard, styles.insightCardDark]} onPress={() => navigation.navigate('Maintenance')}>
-            <View style={styles.insightBadge}>
-              <Text style={styles.insightBadgeText}>Schedule</Text>
-            </View>
-            <Text style={styles.insightCardTitle}>Maintenance calendar</Text>
-            <Text style={styles.insightCardSubtitle}>
-              {upcomingTasks.length} tasks
-            </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Maintenance')}>
+            <LinearGradient
+              colors={[Colors.gradientIndigoStart, Colors.gradientIndigoEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={styles.insightCard}
+            >
+              <View style={styles.insightBadge}>
+                <Text style={styles.insightBadgeText}>Schedule</Text>
+              </View>
+              <Text style={styles.insightCardTitle}>Maintenance calendar</Text>
+              <Text style={styles.insightCardSubtitle}>
+                {upcomingTasks.length} tasks
+              </Text>
+            </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.insightCard, styles.insightCardPurple]} onPress={() => navigation.navigate('ServiceRecords')}>
-            <View style={styles.insightBadge}>
-              <Text style={styles.insightBadgeText}>History</Text>
-            </View>
-            <Text style={styles.insightCardTitle}>Service records</Text>
-            <Text style={styles.insightCardSubtitle}>View all</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('ServiceRecords')}>
+            <LinearGradient
+              colors={[Colors.gradientCyanStart, Colors.gradientCyanEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={styles.insightCard}
+            >
+              <View style={styles.insightBadge}>
+                <Text style={styles.insightBadgeText}>History</Text>
+              </View>
+              <Text style={styles.insightCardTitle}>Service records</Text>
+              <Text style={styles.insightCardSubtitle}>View all</Text>
+            </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.insightCard, styles.insightCardRed]} onPress={() => navigation.navigate('WarningLights')}>
-            <View style={styles.insightBadge}>
-              <Text style={styles.insightBadgeText}>Guide</Text>
-            </View>
-            <Text style={styles.insightCardTitle}>Warning lights</Text>
-            <Text style={styles.insightCardSubtitle}>Learn more</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('WarningLights')}>
+            <LinearGradient
+              colors={[Colors.accent, Colors.gradientPurpleEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={styles.insightCard}
+            >
+              <View style={styles.insightBadge}>
+                <Text style={styles.insightBadgeText}>Guide</Text>
+              </View>
+              <Text style={styles.insightCardTitle}>Warning lights</Text>
+              <Text style={styles.insightCardSubtitle}>Learn more</Text>
+            </LinearGradient>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -310,7 +380,12 @@ export function DashboardScreen({ navigation }: any) {
         <Text style={styles.sectionTitle}>Recommended</Text>
 
         {overdueTasks.length > 0 && (
-          <View style={styles.featureCard}>
+          <LinearGradient
+            colors={[Colors.warning, Colors.urgencyHigh]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.featureCard}
+          >
             <View style={styles.featureCardContent}>
               <Text style={styles.featureCardTitle}>Overdue maintenance</Text>
               {overdueTasks.slice(0, 3).map((task) => (
@@ -320,11 +395,16 @@ export function DashboardScreen({ navigation }: any) {
                 </View>
               ))}
             </View>
-          </View>
+          </LinearGradient>
         )}
 
         {upcomingTasks.length > 0 && (
-          <View style={[styles.featureCard, styles.featureCardSecondary]}>
+          <LinearGradient
+            colors={[Colors.gradientIndigoStart, Colors.gradientIndigoEnd]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.featureCard}
+          >
             <View style={styles.featureCardContent}>
               <Text style={styles.featureCardTitle}>Coming up</Text>
               {upcomingTasks.slice(0, 3).map((task) => (
@@ -334,29 +414,33 @@ export function DashboardScreen({ navigation }: any) {
                 </View>
               ))}
             </View>
-          </View>
+          </LinearGradient>
         )}
 
         {vehicles.length > 0 && (
-          <TouchableOpacity
-            style={[styles.featureCard, styles.featureCardAccent]}
-            onPress={() => navigation.navigate('Guides')}
-          >
-            <View style={styles.featureCardContent}>
-              <Text style={styles.featureCardTitle}>How-to guides</Text>
-              <View style={styles.featureItem}>
-                <Text style={styles.featureIcon}>📖</Text>
-                <Text style={styles.featureText}>Learn basic maintenance</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Guides')}>
+            <LinearGradient
+              colors={[Colors.gradientCyanStart, Colors.gradientCyanEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.featureCard}
+            >
+              <View style={styles.featureCardContent}>
+                <Text style={styles.featureCardTitle}>How-to guides</Text>
+                <View style={styles.featureItem}>
+                  <Text style={styles.featureIcon}>📖</Text>
+                  <Text style={styles.featureText}>Learn basic maintenance</Text>
+                </View>
+                <View style={styles.featureItem}>
+                  <Text style={styles.featureIcon}>🔧</Text>
+                  <Text style={styles.featureText}>DIY repairs</Text>
+                </View>
+                <View style={styles.featureItem}>
+                  <Text style={styles.featureIcon}>💡</Text>
+                  <Text style={styles.featureText}>Tips and tricks</Text>
+                </View>
               </View>
-              <View style={styles.featureItem}>
-                <Text style={styles.featureIcon}>🔧</Text>
-                <Text style={styles.featureText}>DIY repairs</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <Text style={styles.featureIcon}>💡</Text>
-                <Text style={styles.featureText}>Tips and tricks</Text>
-              </View>
-            </View>
+            </LinearGradient>
           </TouchableOpacity>
         )}
       </View>
@@ -430,7 +514,6 @@ const styles = StyleSheet.create({
 
   // Hero Section
   heroSection: {
-    backgroundColor: '#7DD3C0',
     minHeight: 280,
     marginHorizontal: 0,
     marginBottom: Spacing.lg,
@@ -439,25 +522,48 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     position: 'relative',
     overflow: 'hidden',
+    borderRadius: BorderRadius.xl,
+    ...Shadows.green,
   },
   heroContent: {
     zIndex: 1,
   },
   heroSubtext: {
     fontSize: Typography.body,
-    color: 'rgba(0, 0, 0, 0.7)',
+    color: 'rgba(255, 255, 255, 0.9)',
     marginBottom: Spacing.sm,
+    fontWeight: Typography.semibold,
   },
   heroTitle: {
     fontSize: 32,
     fontWeight: Typography.bold,
-    color: Colors.text,
+    color: '#FFFFFF',
     marginBottom: Spacing.md,
     lineHeight: 38,
   },
   heroDetail: {
     fontSize: Typography.body,
-    color: 'rgba(0, 0, 0, 0.8)',
+    color: 'rgba(255, 255, 255, 0.95)',
+  },
+  // Decorative circles for hero section
+  decorativeCircle: {
+    position: 'absolute',
+    borderRadius: 999,
+    opacity: 0.15,
+  },
+  decorativeCircle1: {
+    width: 200,
+    height: 200,
+    backgroundColor: '#FFFFFF',
+    top: -80,
+    right: -60,
+  },
+  decorativeCircle2: {
+    width: 150,
+    height: 150,
+    backgroundColor: '#FFFFFF',
+    bottom: -50,
+    left: -40,
   },
 
   // Section
@@ -479,27 +585,11 @@ const styles = StyleSheet.create({
   insightCard: {
     width: 160,
     height: 180,
-    borderRadius: 16,
+    borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     marginRight: Spacing.md,
-    borderWidth: 3,
     justifyContent: 'space-between',
-  },
-  insightCardBlue: {
-    backgroundColor: '#3B5FE8',
-    borderColor: '#FF6B9D',
-  },
-  insightCardDark: {
-    backgroundColor: '#1A1A2E',
-    borderColor: '#FF6B9D',
-  },
-  insightCardPurple: {
-    backgroundColor: '#D4B5FF',
-    borderColor: '#FF6B9D',
-  },
-  insightCardRed: {
-    backgroundColor: '#FF4458',
-    borderColor: '#8B0000',
+    ...Shadows.purple,
   },
   insightBadge: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -526,17 +616,11 @@ const styles = StyleSheet.create({
 
   // Feature Cards
   featureCard: {
-    backgroundColor: '#5A3A4F',
-    borderRadius: 20,
+    borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
     marginBottom: Spacing.md,
     minHeight: 180,
-  },
-  featureCardSecondary: {
-    backgroundColor: '#2E4057',
-  },
-  featureCardAccent: {
-    backgroundColor: '#457B9D',
+    ...Shadows.lg,
   },
   featureCardContent: {
     flex: 1,
@@ -563,13 +647,6 @@ const styles = StyleSheet.create({
 
   // Empty State Styles
   insightCardEmpty: {
-    opacity: 0.6,
-  },
-  insightCardEmptyText: {
     opacity: 0.8,
-  },
-  featureCardEmpty: {
-    backgroundColor: '#4A4A5A',
-    opacity: 0.7,
   },
 });

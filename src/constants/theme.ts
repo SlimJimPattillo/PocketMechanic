@@ -1,45 +1,61 @@
-// Design system based on PRD requirements
-// Color Scheme: Calming, friendly colors to reduce anxiety
-// Soft blues and greens as primary colors, with muted purples and teals as accents
+// Design system - Modern, vibrant color scheme
+// Vibrant purples, greens, and cyans with gradient support
 
 export const Colors = {
-  // Primary - Soft Blues
-  primary: '#4A90E2',
-  primaryLight: '#6FA8ED',
-  primaryDark: '#2E5C8F',
+  // Primary - Vibrant Indigo (85% intensity)
+  primary: '#7477F3',
+  primaryLight: '#9395F6',
+  primaryDark: '#4F46E5',
 
-  // Secondary - Calming Greens
-  secondary: '#5DBB63',
-  secondaryLight: '#7ECB84',
-  secondaryDark: '#3D9943',
+  // Secondary - Vibrant Mint Green (85% intensity)
+  secondary: '#2BC794',
+  secondaryLight: '#4DD4A8',
+  secondaryDark: '#0F9D70',
 
   // Accents
-  accent: '#8B7EC5', // Muted purple
-  accentTeal: '#4DB8B8', // Muted teal
+  accent: '#A78BFA', // Vibrant purple
+  accentTeal: '#1FC0DB', // Vibrant cyan (85% intensity)
+  accentCyan: '#06B6D4', // Bright cyan
+  accentMint: '#2DD4BF', // Bright teal/mint
+
+  // Gradient Colors (for card backgrounds)
+  gradientPurpleStart: '#7477F3',
+  gradientPurpleEnd: '#A78BFA',
+  gradientGreenStart: '#2BC794',
+  gradientGreenEnd: '#2DD4BF',
+  gradientCyanStart: '#1FC0DB',
+  gradientCyanEnd: '#06B6D4',
+  gradientIndigoStart: '#4F46E5',
+  gradientIndigoEnd: '#7477F3',
 
   // Semantic Colors
-  success: '#5DBB63',
-  warning: '#F5A623',
-  error: '#E74C3C',
-  info: '#4A90E2',
+  success: '#2BC794',
+  warning: '#F59E0B',
+  error: '#EF4444',
+  info: '#7477F3',
 
   // Urgency Levels (for dashboard lights and repairs)
-  urgencyCritical: '#E74C3C',
-  urgencyHigh: '#F5A623',
-  urgencyMedium: '#F8C547',
-  urgencyLow: '#5DBB63',
+  urgencyCritical: '#EF4444',
+  urgencyHigh: '#F59E0B',
+  urgencyMedium: '#FBBF24',
+  urgencyLow: '#2BC794',
 
   // Neutrals
   background: '#FFFFFF',
-  backgroundSecondary: '#F8F9FA',
-  backgroundTertiary: '#E9ECEF',
+  backgroundSecondary: '#F9FAFB',
+  backgroundTertiary: '#F3F4F6',
 
-  text: '#2C3E50',
-  textSecondary: '#7F8C8D',
-  textLight: '#95A5A6',
+  text: '#1F2937',
+  textSecondary: '#6B7280',
+  textLight: '#9CA3AF',
 
-  border: '#DEE2E6',
-  borderLight: '#E9ECEF',
+  border: '#E5E7EB',
+  borderLight: '#F3F4F6',
+
+  // Decorative background elements
+  decorativePurple: 'rgba(116, 119, 243, 0.1)',
+  decorativeGreen: 'rgba(43, 199, 148, 0.1)',
+  decorativeCyan: 'rgba(31, 192, 219, 0.1)',
 
   // Overlays
   overlay: 'rgba(0, 0, 0, 0.5)',
@@ -79,34 +95,57 @@ export const Spacing = {
 };
 
 export const BorderRadius = {
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
+  sm: 8,
+  md: 12,
+  lg: 20,
+  xl: 24,
+  xxl: 32,
   round: 999,
 };
 
 export const Shadows = {
   sm: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowColor: '#7477F3',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
   },
   md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  lg: {
-    shadowColor: '#000',
+    shadowColor: '#7477F3',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
-    elevation: 5,
+    elevation: 4,
+  },
+  lg: {
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  // Colored shadow variants
+  purple: {
+    shadowColor: '#7477F3',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  green: {
+    shadowColor: '#2BC794',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  cyan: {
+    shadowColor: '#1FC0DB',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 6,
   },
 };
 

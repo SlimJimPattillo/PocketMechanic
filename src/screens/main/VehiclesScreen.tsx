@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { supabase } from '../../services/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
-import { Colors, Typography, Spacing, Layout } from '../../constants/theme';
+import { Colors, Typography, Spacing, Layout, Shadows } from '../../constants/theme';
 import { Vehicle } from '../../types';
 
 export const VehiclesScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
@@ -68,9 +69,14 @@ export const VehiclesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
     >
       {vehicles.length === 0 ? (
         <View style={styles.emptyState}>
-          <View style={styles.emptyIconContainer}>
+          <LinearGradient
+            colors={[Colors.gradientPurpleStart, Colors.gradientPurpleEnd]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.emptyIconContainer}
+          >
             <Text style={styles.emptyIcon}>🚗</Text>
-          </View>
+          </LinearGradient>
           <Text style={styles.emptyTitle}>No vehicles yet</Text>
           <Text style={styles.emptySubtitle}>
             Add your first vehicle to start tracking maintenance schedules, service records, and stay on top of your car care
@@ -142,10 +148,10 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.lg,
+    ...Shadows.purple,
   },
   emptyIcon: {
     fontSize: 50,
