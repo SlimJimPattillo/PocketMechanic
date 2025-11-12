@@ -53,10 +53,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        // If user doesn't exist in users table, create a basic user object from session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          // Create user profile if it doesn't exist
+          const { error: insertError } = await supabase.from('users').insert({
+            id: session.user.id,
+            email: session.user.email,
+            is_premium: false,
+          });
+
+          if (!insertError) {
+            // Fetch again after creating
+            const { data: newData } = await supabase
+              .from('users')
+              .select('*')
+              .eq('id', userId)
+              .single();
+            setUser(newData);
+          } else {
+            console.error('Error creating user profile:', insertError);
+            // Set a minimal user object from session if table doesn't exist
+            setUser({
+              id: session.user.id,
+              email: session.user.email || '',
+              isPremium: false,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            } as User);
+          }
+        }
+        return;
+      }
+
       setUser(data);
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error('Error in fetchUserProfile:', error);
     } finally {
       setLoading(false);
     }
@@ -82,10 +116,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { error: profileError } = await supabase.from('users').insert({
           id: data.user.id,
           email: data.user.email,
-          isPremium: false,
+          is_premium: false,
         });
 
-        if (profileError) return { error: profileError };
+        if (profileError) {
+          console.error('Error creating user profile:', profileError);
+          return { error: profileError };
+        }
       }
 
       return { error: null };

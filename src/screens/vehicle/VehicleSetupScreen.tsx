@@ -54,6 +54,15 @@ export const VehicleSetupScreen: React.FC<{ navigation: any }> = ({ navigation }
       return;
     }
 
+    // Check if user exists
+    if (!user?.id) {
+      Alert.alert(
+        'Authentication Error',
+        'User not found. Please log out and log back in, then try again.'
+      );
+      return;
+    }
+
     const yearNum = parseInt(year);
     const mileageNum = parseInt(mileage);
 
@@ -113,9 +122,10 @@ export const VehicleSetupScreen: React.FC<{ navigation: any }> = ({ navigation }
       Alert.alert('Success', 'Vehicle added successfully!', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding vehicle:', error);
-      Alert.alert('Error', 'Failed to add vehicle. Please try again.');
+      const errorMessage = error?.message || 'Failed to add vehicle. Please try again.';
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
     }
