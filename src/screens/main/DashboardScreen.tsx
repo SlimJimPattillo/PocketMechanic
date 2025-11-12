@@ -7,23 +7,14 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
-import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import type { CompositeScreenProps } from '@react-navigation/native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { supabase } from '../../services/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { Colors, Typography, Spacing, Layout } from '../../constants/theme';
-import { Vehicle, MaintenanceTask, MainTabsParamList, MainStackParamList } from '../../types';
-
-type Props = CompositeScreenProps<
-  BottomTabScreenProps<MainTabsParamList, 'Dashboard'>,
-  NativeStackScreenProps<MainStackParamList>
->;
+import { Vehicle, MaintenanceTask } from '../../types';
 
 export function DashboardScreen({ navigation }: any) {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [upcomingTasks, setUpcomingTasks] = useState<MaintenanceTask[]>([]);
   const [overdueTasks, setOverdueTasks] = useState<MaintenanceTask[]>([]);
@@ -31,31 +22,46 @@ export function DashboardScreen({ navigation }: any) {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      loadData();
+    if (!authLoading) {
+      if (user) {
+        loadData();
+      } else {
+        setLoading(false);
+      }
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   const loadData = async () => {
     try {
+      console.log('Loading dashboard data for user:', user?.id);
+
       // Load vehicles
-      const { data: vehiclesData } = await supabase
+      const { data: vehiclesData, error: vehiclesError } = await supabase
         .from('vehicles')
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
+      if (vehiclesError) {
+        console.error('Error loading vehicles:', vehiclesError);
+      }
+
       setVehicles(vehiclesData || []);
+      console.log('Loaded vehicles:', vehiclesData?.length || 0);
 
       // Load maintenance tasks
       if (vehiclesData && vehiclesData.length > 0) {
         const vehicleIds = vehiclesData.map((v) => v.id);
-        const { data: tasksData } = await supabase
+        const { data: tasksData, error: tasksError } = await supabase
           .from('maintenance_tasks')
           .select('*')
           .in('vehicle_id', vehicleIds)
           .order('next_due_mileage', { ascending: true })
           .limit(10);
+
+        if (tasksError) {
+          console.error('Error loading tasks:', tasksError);
+        }
 
         const tasks = (tasksData || []).map((t: any) => ({
           ...t,
@@ -69,6 +75,7 @@ export function DashboardScreen({ navigation }: any) {
 
         setOverdueTasks(overdue);
         setUpcomingTasks(upcoming);
+        console.log('Loaded tasks - Overdue:', overdue.length, 'Upcoming:', upcoming.length);
       }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -83,21 +90,6 @@ export function DashboardScreen({ navigation }: any) {
     loadData();
   };
 
-  const renderUrgencyBadge = (priority: string) => {
-    const colors = {
-      critical: Colors.urgencyCritical,
-      high: Colors.urgencyHigh,
-      medium: Colors.urgencyMedium,
-      low: Colors.urgencyLow,
-    };
-
-    return (
-      <View style={[styles.urgencyBadge, { backgroundColor: colors[priority as keyof typeof colors] }]}>
-        <Text style={styles.urgencyText}>{priority.toUpperCase()}</Text>
-      </View>
-    );
-  };
-
   if (loading) {
     return (
       <View style={styles.container}>
@@ -108,108 +100,265 @@ export function DashboardScreen({ navigation }: any) {
 
   if (vehicles.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyTitle}>Welcome to PocketMechanic!</Text>
-        <Text style={styles.emptySubtitle}>
-          Add your first vehicle to start tracking maintenance
-        </Text>
-        <Button
-          title="Add Vehicle"
-          onPress={() => navigation.navigate('VehicleSetup')}
-        />
-      </View>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        {/* Top Header */}
+        <View style={styles.topHeader}>
+          <TouchableOpacity style={styles.vehicleAvatar} onPress={() => navigation.navigate('Vehicles')}>
+            <Text style={styles.avatarText}>🚗</Text>
+          </TouchableOpacity>
+          <Text style={styles.dateText}>
+            {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('VehicleSetup')}>
+            <Text style={styles.calendarIcon}>➕</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Hero Section - Empty State */}
+        <View style={styles.heroSection}>
+          <View style={styles.heroContent}>
+            <Text style={styles.heroSubtext}>Welcome to PocketMechanic!</Text>
+            <Text style={styles.heroTitle}>
+              Add your first vehicle to get started
+            </Text>
+            <Text style={styles.heroDetail}>
+              Track maintenance, stay on schedule, and keep your car healthy
+            </Text>
+            <View style={{ marginTop: Spacing.lg }}>
+              <Button
+                title="Add Vehicle"
+                onPress={() => navigation.navigate('VehicleSetup')}
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Quick Insights Cards - Empty State */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Quick insights</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.insightCards}
+          >
+            <View style={[styles.insightCard, styles.insightCardBlue, styles.insightCardEmpty]}>
+              <View style={styles.insightBadge}>
+                <Text style={styles.insightBadgeText}>Status</Text>
+              </View>
+              <Text style={[styles.insightCardTitle, styles.insightCardEmptyText]}>Vehicle health</Text>
+              <Text style={[styles.insightCardSubtitle, styles.insightCardEmptyText]}>
+                Add vehicle
+              </Text>
+            </View>
+
+            <View style={[styles.insightCard, styles.insightCardDark, styles.insightCardEmpty]}>
+              <View style={styles.insightBadge}>
+                <Text style={styles.insightBadgeText}>Schedule</Text>
+              </View>
+              <Text style={[styles.insightCardTitle, styles.insightCardEmptyText]}>Maintenance calendar</Text>
+              <Text style={[styles.insightCardSubtitle, styles.insightCardEmptyText]}>
+                0 tasks
+              </Text>
+            </View>
+
+            <View style={[styles.insightCard, styles.insightCardPurple, styles.insightCardEmpty]}>
+              <View style={styles.insightBadge}>
+                <Text style={styles.insightBadgeText}>History</Text>
+              </View>
+              <Text style={[styles.insightCardTitle, styles.insightCardEmptyText]}>Service records</Text>
+              <Text style={[styles.insightCardSubtitle, styles.insightCardEmptyText]}>View all</Text>
+            </View>
+
+            <View style={[styles.insightCard, styles.insightCardRed, styles.insightCardEmpty]}>
+              <View style={styles.insightBadge}>
+                <Text style={styles.insightBadgeText}>Guide</Text>
+              </View>
+              <Text style={[styles.insightCardTitle, styles.insightCardEmptyText]}>Warning lights</Text>
+              <Text style={[styles.insightCardSubtitle, styles.insightCardEmptyText]}>Learn more</Text>
+            </View>
+          </ScrollView>
+        </View>
+
+        {/* Recommended Section - Empty State */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Recommended</Text>
+          <View style={[styles.featureCard, styles.featureCardEmpty]}>
+            <View style={styles.featureCardContent}>
+              <Text style={styles.featureCardTitle}>Add a vehicle to see</Text>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>📅</Text>
+                <Text style={styles.featureText}>Upcoming maintenance tasks</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>⚠️</Text>
+                <Text style={styles.featureText}>Overdue maintenance alerts</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>📖</Text>
+                <Text style={styles.featureText}>Personalized how-to guides</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
     );
   }
+
+  const primaryVehicle = vehicles[0];
+  const mostUrgentTask = overdueTasks[0] || upcomingTasks[0];
 
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={styles.scrollContent}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
-      <View style={styles.header}>
-        <Text style={styles.greeting}>Hello, {user?.email?.split('@')[0]}!</Text>
-        <Text style={styles.subtitle}>Here's your maintenance overview</Text>
+      {/* Top Header */}
+      <View style={styles.topHeader}>
+        <TouchableOpacity style={styles.vehicleAvatar} onPress={() => navigation.navigate('Vehicles')}>
+          <Text style={styles.avatarText}>🚗</Text>
+        </TouchableOpacity>
+        <Text style={styles.dateText}>
+          {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+        </Text>
+        <TouchableOpacity onPress={() => navigation.navigate('VehicleSetup')}>
+          <Text style={styles.calendarIcon}>📅</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Overdue Tasks */}
-      {overdueTasks.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>⚠️ Overdue Maintenance</Text>
-          {overdueTasks.map((task) => (
-            <Card key={task.id} style={styles.taskCard}>
-              <View style={styles.taskHeader}>
-                <Text style={styles.taskTitle}>{task.title}</Text>
-                {renderUrgencyBadge(task.priority)}
-              </View>
-              <Text style={styles.taskDescription}>{task.description}</Text>
-              <Text style={styles.taskDue}>
-                Due: {task.nextDueMileage} miles
+      {/* Hero Section */}
+      <View style={styles.heroSection}>
+        <View style={styles.heroContent}>
+          {mostUrgentTask ? (
+            <>
+              <Text style={styles.heroSubtext}>
+                {mostUrgentTask.isOverdue ? '⚠️ Maintenance overdue' : '📅 Coming up soon'}
               </Text>
-            </Card>
-          ))}
-        </View>
-      )}
-
-      {/* Upcoming Tasks */}
-      {upcomingTasks.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📅 Upcoming Maintenance</Text>
-          {upcomingTasks.slice(0, 5).map((task) => (
-            <Card key={task.id} style={styles.taskCard}>
-              <View style={styles.taskHeader}>
-                <Text style={styles.taskTitle}>{task.title}</Text>
-                {renderUrgencyBadge(task.priority)}
-              </View>
-              <Text style={styles.taskDescription}>{task.description}</Text>
-              <Text style={styles.taskDue}>
-                Due: {task.nextDueMileage} miles
+              <Text style={styles.heroTitle}>
+                {mostUrgentTask.title}
               </Text>
-            </Card>
-          ))}
+              <Text style={styles.heroDetail}>
+                {primaryVehicle && `${primaryVehicle.year} ${primaryVehicle.make} ${primaryVehicle.model}`}
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.heroSubtext}>All caught up!</Text>
+              <Text style={styles.heroTitle}>
+                Your vehicle is running smoothly
+              </Text>
+              <Text style={styles.heroDetail}>
+                {primaryVehicle && `${primaryVehicle.year} ${primaryVehicle.make} ${primaryVehicle.model}`}
+              </Text>
+            </>
+          )}
         </View>
-      )}
-
-      {/* Vehicles Summary */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>🚗 Your Vehicles</Text>
-        {vehicles.map((vehicle) => (
-          <Card key={vehicle.id} onPress={() => navigation.navigate('Vehicles')}>
-            <Text style={styles.vehicleName}>
-              {vehicle.year} {vehicle.make} {vehicle.model}
-            </Text>
-            <Text style={styles.vehicleDetail}>
-              {vehicle.mileage.toLocaleString()} miles
-            </Text>
-          </Card>
-        ))}
-        <Button
-          title="Add Another Vehicle"
-          onPress={() => navigation.navigate('VehicleSetup')}
-          variant="outline"
-          fullWidth
-        />
       </View>
 
-      {/* Quick Actions */}
+      {/* Quick Insights Cards */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.quickActions}>
-          <TouchableOpacity
-            style={styles.quickAction}
-            onPress={() => navigation.navigate('WarningLights')}
-          >
-            <Text style={styles.quickActionIcon}>⚠️</Text>
-            <Text style={styles.quickActionText}>Warning Lights</Text>
+        <Text style={styles.sectionTitle}>Quick insights</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.insightCards}
+        >
+          <TouchableOpacity style={[styles.insightCard, styles.insightCardBlue]} onPress={() => navigation.navigate('Vehicles')}>
+            <View style={styles.insightBadge}>
+              <Text style={styles.insightBadgeText}>Status</Text>
+            </View>
+            <Text style={styles.insightCardTitle}>Vehicle health</Text>
+            <Text style={styles.insightCardSubtitle}>
+              {primaryVehicle ? `${primaryVehicle.mileage.toLocaleString()} mi` : 'Add vehicle'}
+            </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.insightCard, styles.insightCardDark]} onPress={() => navigation.navigate('Maintenance')}>
+            <View style={styles.insightBadge}>
+              <Text style={styles.insightBadgeText}>Schedule</Text>
+            </View>
+            <Text style={styles.insightCardTitle}>Maintenance calendar</Text>
+            <Text style={styles.insightCardSubtitle}>
+              {upcomingTasks.length} tasks
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.insightCard, styles.insightCardPurple]} onPress={() => navigation.navigate('ServiceRecords')}>
+            <View style={styles.insightBadge}>
+              <Text style={styles.insightBadgeText}>History</Text>
+            </View>
+            <Text style={styles.insightCardTitle}>Service records</Text>
+            <Text style={styles.insightCardSubtitle}>View all</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.insightCard, styles.insightCardRed]} onPress={() => navigation.navigate('WarningLights')}>
+            <View style={styles.insightBadge}>
+              <Text style={styles.insightBadgeText}>Guide</Text>
+            </View>
+            <Text style={styles.insightCardTitle}>Warning lights</Text>
+            <Text style={styles.insightCardSubtitle}>Learn more</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+
+      {/* Recommended / Upcoming Tasks */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Recommended</Text>
+
+        {overdueTasks.length > 0 && (
+          <View style={styles.featureCard}>
+            <View style={styles.featureCardContent}>
+              <Text style={styles.featureCardTitle}>Overdue maintenance</Text>
+              {overdueTasks.slice(0, 3).map((task) => (
+                <View key={task.id} style={styles.featureItem}>
+                  <Text style={styles.featureIcon}>⚠️</Text>
+                  <Text style={styles.featureText}>{task.title}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {upcomingTasks.length > 0 && (
+          <View style={[styles.featureCard, styles.featureCardSecondary]}>
+            <View style={styles.featureCardContent}>
+              <Text style={styles.featureCardTitle}>Coming up</Text>
+              {upcomingTasks.slice(0, 3).map((task) => (
+                <View key={task.id} style={styles.featureItem}>
+                  <Text style={styles.featureIcon}>✓</Text>
+                  <Text style={styles.featureText}>{task.title}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {vehicles.length > 0 && (
           <TouchableOpacity
-            style={styles.quickAction}
+            style={[styles.featureCard, styles.featureCardAccent]}
             onPress={() => navigation.navigate('Guides')}
           >
-            <Text style={styles.quickActionIcon}>📖</Text>
-            <Text style={styles.quickActionText}>How-To Guides</Text>
+            <View style={styles.featureCardContent}>
+              <Text style={styles.featureCardTitle}>How-to guides</Text>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>📖</Text>
+                <Text style={styles.featureText}>Learn basic maintenance</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>🔧</Text>
+                <Text style={styles.featureText}>DIY repairs</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>💡</Text>
+                <Text style={styles.featureText}>Tips and tricks</Text>
+              </View>
+            </View>
           </TouchableOpacity>
-        </View>
+        )}
       </View>
     </ScrollView>
   );
@@ -218,10 +367,10 @@ export function DashboardScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundSecondary,
+    backgroundColor: Colors.background,
   },
-  content: {
-    padding: Layout.screenPadding,
+  scrollContent: {
+    paddingBottom: Spacing.xl,
   },
   loadingText: {
     fontSize: Typography.body,
@@ -249,21 +398,72 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
     textAlign: 'center',
   },
-  header: {
-    marginBottom: Spacing.lg,
+
+  // Top Header
+  topHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: Layout.screenPadding,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
   },
-  greeting: {
-    fontSize: Typography.h2,
+  vehicleAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    fontSize: 24,
+  },
+  dateText: {
+    fontSize: Typography.h3,
+    fontWeight: Typography.semibold,
+    color: Colors.text,
+  },
+  calendarIcon: {
+    fontSize: 28,
+  },
+
+  // Hero Section
+  heroSection: {
+    backgroundColor: '#7DD3C0',
+    minHeight: 280,
+    marginHorizontal: 0,
+    marginBottom: Spacing.lg,
+    paddingHorizontal: Layout.screenPadding,
+    paddingVertical: Spacing.xl * 2,
+    justifyContent: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  heroContent: {
+    zIndex: 1,
+  },
+  heroSubtext: {
+    fontSize: Typography.body,
+    color: 'rgba(0, 0, 0, 0.7)',
+    marginBottom: Spacing.sm,
+  },
+  heroTitle: {
+    fontSize: 32,
     fontWeight: Typography.bold,
     color: Colors.text,
-    marginBottom: Spacing.xs,
+    marginBottom: Spacing.md,
+    lineHeight: 38,
   },
-  subtitle: {
+  heroDetail: {
     fontSize: Typography.body,
-    color: Colors.textSecondary,
+    color: 'rgba(0, 0, 0, 0.8)',
   },
+
+  // Section
   section: {
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.xl,
+    paddingHorizontal: Layout.screenPadding,
   },
   sectionTitle: {
     fontSize: Typography.h3,
@@ -271,68 +471,105 @@ const styles = StyleSheet.create({
     color: Colors.text,
     marginBottom: Spacing.md,
   },
-  taskCard: {
+
+  // Insight Cards
+  insightCards: {
+    paddingRight: Layout.screenPadding,
+  },
+  insightCard: {
+    width: 160,
+    height: 180,
+    borderRadius: 16,
+    padding: Spacing.md,
+    marginRight: Spacing.md,
+    borderWidth: 3,
+    justifyContent: 'space-between',
+  },
+  insightCardBlue: {
+    backgroundColor: '#3B5FE8',
+    borderColor: '#FF6B9D',
+  },
+  insightCardDark: {
+    backgroundColor: '#1A1A2E',
+    borderColor: '#FF6B9D',
+  },
+  insightCardPurple: {
+    backgroundColor: '#D4B5FF',
+    borderColor: '#FF6B9D',
+  },
+  insightCardRed: {
+    backgroundColor: '#FF4458',
+    borderColor: '#8B0000',
+  },
+  insightBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    alignSelf: 'flex-start',
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  insightBadgeText: {
+    fontSize: Typography.caption,
+    color: Colors.text,
+    fontWeight: Typography.semibold,
+  },
+  insightCardTitle: {
+    fontSize: Typography.body,
+    fontWeight: Typography.bold,
+    color: '#fff',
+    marginTop: Spacing.md,
+  },
+  insightCardSubtitle: {
+    fontSize: Typography.bodySmall,
+    color: 'rgba(255, 255, 255, 0.9)',
+  },
+
+  // Feature Cards
+  featureCard: {
+    backgroundColor: '#5A3A4F',
+    borderRadius: 20,
+    padding: Spacing.lg,
+    marginBottom: Spacing.md,
+    minHeight: 180,
+  },
+  featureCardSecondary: {
+    backgroundColor: '#2E4057',
+  },
+  featureCardAccent: {
+    backgroundColor: '#457B9D',
+  },
+  featureCardContent: {
+    flex: 1,
+  },
+  featureCardTitle: {
+    fontSize: Typography.h3,
+    fontWeight: Typography.bold,
+    color: '#fff',
     marginBottom: Spacing.md,
   },
-  taskHeader: {
+  featureItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.xs,
-  },
-  taskTitle: {
-    fontSize: Typography.body,
-    fontWeight: Typography.semibold,
-    color: Colors.text,
-    flex: 1,
-  },
-  taskDescription: {
-    fontSize: Typography.bodySmall,
-    color: Colors.textSecondary,
-    marginBottom: Spacing.xs,
-  },
-  taskDue: {
-    fontSize: Typography.bodySmall,
-    color: Colors.primary,
-  },
-  urgencyBadge: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  urgencyText: {
-    fontSize: Typography.caption,
-    color: '#fff',
-    fontWeight: Typography.bold,
-  },
-  vehicleName: {
-    fontSize: Typography.body,
-    fontWeight: Typography.semibold,
-    color: Colors.text,
-    marginBottom: Spacing.xs,
-  },
-  vehicleDetail: {
-    fontSize: Typography.bodySmall,
-    color: Colors.textSecondary,
-  },
-  quickActions: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-  },
-  quickAction: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    padding: Spacing.md,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  quickActionIcon: {
-    fontSize: 32,
     marginBottom: Spacing.sm,
   },
-  quickActionText: {
-    fontSize: Typography.bodySmall,
-    color: Colors.text,
-    textAlign: 'center',
+  featureIcon: {
+    fontSize: 20,
+    marginRight: Spacing.sm,
+  },
+  featureText: {
+    fontSize: Typography.body,
+    color: '#fff',
+  },
+
+  // Empty State Styles
+  insightCardEmpty: {
+    opacity: 0.6,
+  },
+  insightCardEmptyText: {
+    opacity: 0.8,
+  },
+  featureCardEmpty: {
+    backgroundColor: '#4A4A5A',
+    opacity: 0.7,
   },
 });

@@ -8,26 +8,37 @@ import { Colors, Typography, Spacing, Layout } from '../../constants/theme';
 import { Vehicle } from '../../types';
 
 export const VehiclesScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      loadVehicles();
+    if (!authLoading) {
+      if (user) {
+        loadVehicles();
+      } else {
+        setLoading(false);
+      }
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   const loadVehicles = async () => {
     try {
-      const { data } = await supabase
+      console.log('Loading vehicles for user:', user?.id);
+
+      const { data, error } = await supabase
         .from('vehicles')
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
+      if (error) {
+        console.error('Error loading vehicles:', error);
+      }
+
       setVehicles(data || []);
+      console.log('Loaded vehicles:', data?.length || 0);
     } catch (error) {
       console.error('Error loading vehicles:', error);
     } finally {
@@ -57,8 +68,27 @@ export const VehiclesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
     >
       {vehicles.length === 0 ? (
         <View style={styles.emptyState}>
+          <View style={styles.emptyIconContainer}>
+            <Text style={styles.emptyIcon}>🚗</Text>
+          </View>
           <Text style={styles.emptyTitle}>No vehicles yet</Text>
-          <Text style={styles.emptySubtitle}>Add your first vehicle to get started</Text>
+          <Text style={styles.emptySubtitle}>
+            Add your first vehicle to start tracking maintenance schedules, service records, and stay on top of your car care
+          </Text>
+          <View style={styles.emptyFeatures}>
+            <View style={styles.emptyFeature}>
+              <Text style={styles.emptyFeatureIcon}>✓</Text>
+              <Text style={styles.emptyFeatureText}>Track maintenance schedules</Text>
+            </View>
+            <View style={styles.emptyFeature}>
+              <Text style={styles.emptyFeatureIcon}>✓</Text>
+              <Text style={styles.emptyFeatureText}>Get timely service reminders</Text>
+            </View>
+            <View style={styles.emptyFeature}>
+              <Text style={styles.emptyFeatureIcon}>✓</Text>
+              <Text style={styles.emptyFeatureText}>Access how-to guides and tips</Text>
+            </View>
+          </View>
         </View>
       ) : (
         vehicles.map((vehicle) => (
@@ -108,16 +138,53 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.xxl,
   },
+  emptyIconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  emptyIcon: {
+    fontSize: 50,
+  },
   emptyTitle: {
     fontSize: Typography.h2,
     fontWeight: Typography.bold,
     color: Colors.text,
     marginBottom: Spacing.sm,
+    textAlign: 'center',
   },
   emptySubtitle: {
     fontSize: Typography.body,
     color: Colors.textSecondary,
     marginBottom: Spacing.xl,
+    textAlign: 'center',
+    paddingHorizontal: Spacing.md,
+    lineHeight: 22,
+  },
+  emptyFeatures: {
+    width: '100%',
+    marginBottom: Spacing.xl,
+  },
+  emptyFeature: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+  },
+  emptyFeatureIcon: {
+    fontSize: 20,
+    color: Colors.success,
+    marginRight: Spacing.sm,
+    fontWeight: Typography.bold,
+  },
+  emptyFeatureText: {
+    fontSize: Typography.body,
+    color: Colors.text,
+    flex: 1,
   },
   vehicleCard: {
     marginBottom: Spacing.md,
