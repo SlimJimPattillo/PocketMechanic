@@ -13,6 +13,7 @@ import { nhtsaApi } from '../../services/nhtsaApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
+import { VehicleSuccessModal } from '../../components/vehicle/VehicleSuccessModal';
 import { Colors, Typography, Spacing, Layout } from '../../constants/theme';
 import { defaultMaintenanceSchedule } from '../../data/maintenanceSchedule';
 
@@ -26,6 +27,14 @@ export const VehicleSetupScreen: React.FC<{ navigation: any }> = ({ navigation }
   const [nickname, setNickname] = useState('');
   const [loading, setLoading] = useState(false);
   const [useVin, setUseVin] = useState(true);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [addedVehicle, setAddedVehicle] = useState<{
+    make: string;
+    model: string;
+    year: number;
+    mileage: number;
+    nickname?: string;
+  } | null>(null);
 
   const handleVinLookup = async () => {
     if (vin.length !== 17) {
@@ -119,9 +128,15 @@ export const VehicleSetupScreen: React.FC<{ navigation: any }> = ({ navigation }
 
       if (tasksError) console.error('Error creating maintenance tasks:', tasksError);
 
-      Alert.alert('Success', 'Vehicle added successfully!', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      // Set vehicle details and show success modal
+      setAddedVehicle({
+        make,
+        model,
+        year: yearNum,
+        mileage: mileageNum,
+        nickname: nickname || undefined,
+      });
+      setShowSuccessModal(true);
     } catch (error: any) {
       console.error('Error adding vehicle:', error);
       const errorMessage = error?.message || 'Failed to add vehicle. Please try again.';
@@ -129,6 +144,28 @@ export const VehicleSetupScreen: React.FC<{ navigation: any }> = ({ navigation }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowSuccessModal(false);
+    navigation.goBack();
+  };
+
+  const handleViewDashboard = () => {
+    setShowSuccessModal(false);
+    navigation.navigate('MainTabs', { screen: 'Dashboard' });
+  };
+
+  const handleAddAnother = () => {
+    setShowSuccessModal(false);
+    // Reset form
+    setVin('');
+    setMake('');
+    setModel('');
+    setYear('');
+    setMileage('');
+    setNickname('');
+    setUseVin(true);
   };
 
   return (
@@ -222,6 +259,17 @@ export const VehicleSetupScreen: React.FC<{ navigation: any }> = ({ navigation }
           fullWidth
         />
       </ScrollView>
+
+      {/* Success Modal */}
+      {addedVehicle && (
+        <VehicleSuccessModal
+          visible={showSuccessModal}
+          onClose={handleCloseModal}
+          onViewDashboard={handleViewDashboard}
+          onAddAnother={handleAddAnother}
+          vehicleDetails={addedVehicle}
+        />
+      )}
     </KeyboardAvoidingView>
   );
 };
