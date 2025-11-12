@@ -120,13 +120,8 @@ export function DashboardScreen({ navigation }: any) {
         </View>
 
         {/* Hero Section - Empty State */}
-        <LinearGradient
-          colors={[Colors.gradientGreenStart, Colors.gradientGreenEnd]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.heroSection}
-        >
-          <View style={styles.heroContent}>
+        <View style={styles.heroSectionWrapper}>
+          <View style={styles.heroCard}>
             <Text style={styles.heroSubtext}>Welcome to PocketMechanic!</Text>
             <Text style={styles.heroTitle}>
               Add your first vehicle to get started
@@ -141,10 +136,7 @@ export function DashboardScreen({ navigation }: any) {
               />
             </View>
           </View>
-          {/* Decorative circles */}
-          <View style={[styles.decorativeCircle, styles.decorativeCircle1]} />
-          <View style={[styles.decorativeCircle, styles.decorativeCircle2]} />
-        </LinearGradient>
+        </View>
 
         {/* Quick Insights Cards - Empty State */}
         <View style={styles.section}>
@@ -265,13 +257,8 @@ export function DashboardScreen({ navigation }: any) {
       </View>
 
       {/* Hero Section */}
-      <LinearGradient
-        colors={[Colors.gradientGreenStart, Colors.gradientGreenEnd]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.heroSection}
-      >
-        <View style={styles.heroContent}>
+      <View style={styles.heroSectionWrapper}>
+        <View style={styles.heroCard}>
           {mostUrgentTask ? (
             <>
               <Text style={styles.heroSubtext}>
@@ -296,10 +283,7 @@ export function DashboardScreen({ navigation }: any) {
             </>
           )}
         </View>
-        {/* Decorative circles */}
-        <View style={[styles.decorativeCircle, styles.decorativeCircle1]} />
-        <View style={[styles.decorativeCircle, styles.decorativeCircle2]} />
-      </LinearGradient>
+      </View>
 
       {/* Quick Insights Cards */}
       <View style={styles.section}>
@@ -512,58 +496,43 @@ const styles = StyleSheet.create({
     fontSize: 28,
   },
 
-  // Hero Section
-  heroSection: {
-    minHeight: 280,
-    marginHorizontal: 0,
-    marginBottom: Spacing.lg,
+  // Hero Section - Centered Card
+  heroSectionWrapper: {
     paddingHorizontal: Layout.screenPadding,
-    paddingVertical: Spacing.xl * 2,
-    justifyContent: 'center',
-    position: 'relative',
-    overflow: 'hidden',
-    borderRadius: BorderRadius.xl,
-    ...Shadows.green,
+    marginBottom: Spacing.xl,
+    alignItems: 'center',
   },
-  heroContent: {
-    zIndex: 1,
+  heroCard: {
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 3,
+    borderColor: Colors.primary,
+    padding: Spacing.xl,
+    width: '100%',
+    maxWidth: 600,
+    alignItems: 'center',
+    ...Shadows.purple,
   },
   heroSubtext: {
     fontSize: Typography.body,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: Colors.primary,
     marginBottom: Spacing.sm,
     fontWeight: Typography.semibold,
+    textAlign: 'center',
   },
   heroTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: Typography.bold,
-    color: '#FFFFFF',
+    color: Colors.text,
     marginBottom: Spacing.md,
-    lineHeight: 38,
+    lineHeight: 34,
+    textAlign: 'center',
   },
   heroDetail: {
     fontSize: Typography.body,
-    color: 'rgba(255, 255, 255, 0.95)',
-  },
-  // Decorative circles for hero section
-  decorativeCircle: {
-    position: 'absolute',
-    borderRadius: 999,
-    opacity: 0.15,
-  },
-  decorativeCircle1: {
-    width: 200,
-    height: 200,
-    backgroundColor: '#FFFFFF',
-    top: -80,
-    right: -60,
-  },
-  decorativeCircle2: {
-    width: 150,
-    height: 150,
-    backgroundColor: '#FFFFFF',
-    bottom: -50,
-    left: -40,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
   },
 
   // Section
