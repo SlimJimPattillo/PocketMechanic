@@ -139,7 +139,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) return { error };
 
-      // Create user profile
+      // Attempt to create user profile (non-blocking)
+      // If this fails, the profile will be created on first sign-in via fetchUserProfile
       if (data.user) {
         const { error: profileError } = await supabase.from('users').insert({
           id: data.user.id,
@@ -148,8 +149,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         if (profileError) {
-          console.error('Error creating user profile:', profileError);
-          return { error: profileError };
+          // Log the error but don't fail the signup
+          // Profile will be created automatically on first sign-in
+          console.warn('Could not create user profile during signup, will be created on sign-in:', profileError);
         }
       }
 
