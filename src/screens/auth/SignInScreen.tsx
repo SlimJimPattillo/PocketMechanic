@@ -17,9 +17,10 @@ export const SignInScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resendingEmail, setResendingEmail] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
-  const { signIn } = useAuth();
+  const { signIn, resendConfirmationEmail } = useAuth();
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -40,6 +41,21 @@ export const SignInScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleResendConfirmation = async () => {
+    setResendingEmail(true);
+    const { error } = await resendConfirmationEmail(email);
+    setResendingEmail(false);
+
+    if (error) {
+      Alert.alert('Error', 'Failed to resend confirmation email. Please try again.');
+    } else {
+      Alert.alert(
+        'Email Sent',
+        'A new confirmation email has been sent. Please check your inbox and click the verification link.'
+      );
+    }
+  };
+
   const handleSignIn = async () => {
     if (!validate()) return;
 
@@ -48,7 +64,28 @@ export const SignInScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     setLoading(false);
 
     if (error) {
-      Alert.alert('Sign In Error', error.message || 'Failed to sign in');
+      // Check if error is related to email not being confirmed
+      const errorMessage = error.message?.toLowerCase() || '';
+      const isEmailNotConfirmed =
+        errorMessage.includes('email not confirmed') ||
+        errorMessage.includes('email confirmation') ||
+        errorMessage.includes('verify your email');
+
+      if (isEmailNotConfirmed) {
+        Alert.alert(
+          'Email Not Verified',
+          'Please verify your email address before signing in. Check your inbox for the verification link.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Resend Email',
+              onPress: handleResendConfirmation,
+            },
+          ]
+        );
+      } else {
+        Alert.alert('Sign In Error', error.message || 'Failed to sign in');
+      }
     }
   };
 

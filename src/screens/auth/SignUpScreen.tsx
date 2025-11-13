@@ -11,6 +11,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
+import { EmailVerificationModal } from '../../components/auth/EmailVerificationModal';
 import { Colors, Typography, Spacing, Layout } from '../../constants/theme';
 
 export const SignUpScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
@@ -18,13 +19,14 @@ export const SignUpScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
     confirmPassword?: string;
   }>({});
 
-  const { signUp } = useAuth();
+  const { signUp, resendConfirmationEmail } = useAuth();
 
   const validate = () => {
     const newErrors: any = {};
@@ -61,12 +63,28 @@ export const SignUpScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     if (error) {
       Alert.alert('Sign Up Error', error.message || 'Failed to create account');
     } else {
-      Alert.alert(
-        'Success!',
-        'Your account has been created. Please check your email to verify your account.',
-        [{ text: 'OK', onPress: () => navigation.navigate('SignIn') }]
-      );
+      // Show email verification modal
+      setShowVerificationModal(true);
     }
+  };
+
+  const handleResendEmail = async () => {
+    const { error } = await resendConfirmationEmail(email);
+    if (error) {
+      console.error('Failed to resend email:', error);
+      Alert.alert('Error', 'Failed to resend email. Please try again.');
+      throw error;
+    }
+  };
+
+  const handleGoToSignIn = () => {
+    setShowVerificationModal(false);
+    navigation.navigate('SignIn');
+  };
+
+  const handleCloseModal = () => {
+    setShowVerificationModal(false);
+    navigation.navigate('SignIn');
   };
 
   return (
@@ -134,6 +152,15 @@ export const SignUpScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           />
         </View>
       </ScrollView>
+
+      {/* Email Verification Modal */}
+      <EmailVerificationModal
+        visible={showVerificationModal}
+        email={email}
+        onClose={handleCloseModal}
+        onResendEmail={handleResendEmail}
+        onSignIn={handleGoToSignIn}
+      />
     </KeyboardAvoidingView>
   );
 };
