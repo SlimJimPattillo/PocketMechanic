@@ -28,10 +28,12 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
 }) => {
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
+  const [resendError, setResendError] = useState<string | null>(null);
 
   const handleResend = async () => {
     setResending(true);
     setResendSuccess(false);
+    setResendError(null);
 
     try {
       await onResendEmail();
@@ -40,6 +42,10 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
       setTimeout(() => setResendSuccess(false), 3000);
     } catch (error) {
       console.error('Failed to resend email:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send email. Please try again.';
+      setResendError(errorMessage);
+      // Reset error message after 5 seconds
+      setTimeout(() => setResendError(null), 5000);
     } finally {
       setResending(false);
     }
@@ -99,6 +105,13 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
             {resendSuccess && (
               <View style={styles.successBanner}>
                 <Text style={styles.successText}>✓ Email sent! Check your inbox</Text>
+              </View>
+            )}
+
+            {/* Resend error message */}
+            {resendError && (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorText}>✕ {resendError}</Text>
               </View>
             )}
 
@@ -238,6 +251,19 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   successText: {
+    color: '#FFFFFF',
+    fontSize: Typography.body,
+    fontWeight: Typography.semibold,
+    textAlign: 'center',
+  },
+  errorBanner: {
+    backgroundColor: 'rgba(239, 68, 68, 0.3)',
+    borderRadius: BorderRadius.sm,
+    padding: Spacing.sm,
+    marginBottom: Spacing.md,
+    width: '100%',
+  },
+  errorText: {
     color: '#FFFFFF',
     fontSize: Typography.body,
     fontWeight: Typography.semibold,

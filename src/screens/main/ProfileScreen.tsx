@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { Card } from '../../components/common/Card';
@@ -7,6 +7,7 @@ import { Colors, Typography, Spacing, Layout } from '../../constants/theme';
 
 export const ProfileScreen: React.FC = () => {
   const { user, signOut } = useAuth();
+  const [signingOut, setSigningOut] = useState(false);
 
   const handleSignOut = () => {
     Alert.alert(
@@ -14,7 +15,21 @@ export const ProfileScreen: React.FC = () => {
       'Are you sure you want to sign out?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Sign Out', onPress: () => signOut(), style: 'destructive' },
+        {
+          text: 'Sign Out',
+          onPress: async () => {
+            try {
+              setSigningOut(true);
+              await signOut();
+              // Navigation happens automatically via auth state listener
+            } catch (error) {
+              console.error('Sign out error:', error);
+              Alert.alert('Error', 'Failed to sign out. Please try again.');
+              setSigningOut(false);
+            }
+          },
+          style: 'destructive'
+        },
       ]
     );
   };
@@ -62,6 +77,7 @@ export const ProfileScreen: React.FC = () => {
         onPress={handleSignOut}
         variant="outline"
         fullWidth
+        loading={signingOut}
       />
     </ScrollView>
   );

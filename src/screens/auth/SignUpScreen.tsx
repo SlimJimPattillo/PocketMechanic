@@ -72,9 +72,10 @@ export const SignUpScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     const { error } = await resendConfirmationEmail(email);
     if (error) {
       console.error('Failed to resend email:', error);
-      Alert.alert('Error', 'Failed to resend email. Please try again.');
-      throw error;
+      // Don't throw - let the modal handle the error display
+      throw new Error('Failed to resend email. Please try again.');
     }
+    // Success - modal will show success banner
   };
 
   const handleGoToSignIn = () => {
