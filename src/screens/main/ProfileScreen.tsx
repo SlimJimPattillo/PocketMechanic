@@ -9,29 +9,16 @@ export const ProfileScreen: React.FC = () => {
   const { user, signOut } = useAuth();
   const [signingOut, setSigningOut] = useState(false);
 
-  const handleSignOut = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          onPress: async () => {
-            try {
-              setSigningOut(true);
-              await signOut();
-              // Navigation happens automatically via auth state listener
-            } catch (error) {
-              console.error('Sign out error:', error);
-              Alert.alert('Error', 'Failed to sign out. Please try again.');
-              setSigningOut(false);
-            }
-          },
-          style: 'destructive'
-        },
-      ]
-    );
+  const handleSignOut = async () => {
+    try {
+      setSigningOut(true);
+      await signOut();
+      // Navigation happens automatically via auth state listener
+    } catch (error) {
+      console.error('Sign out error:', error);
+      setSigningOut(false);
+      Alert.alert('Error', 'Failed to sign out. Please try again.');
+    }
   };
 
   return (
